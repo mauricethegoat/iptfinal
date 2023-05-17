@@ -1,0 +1,202 @@
+<!-- Coding by CodingLab | www.codinglabweb.com -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="style.css">
+
+    <!----===== Boxicons CSS ===== -->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    <title>Dashboard Sidebar Menu</title>
+</head>
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="logo.png" alt="">
+                </span>
+
+                <div class="text logo-text">
+                    <span class="name">Request Form</span>
+                </div>
+            </div>
+
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+
+                <li class="search-box">
+                    <i class='bx bx-search icon'></i>
+                    <input type="text" placeholder="Search...">
+                </li>
+
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class='bx bx-home-alt icon'></i>
+                            <span class="text nav-text">Form</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="table.html">
+                            <i class='bx bx-wallet icon'></i>
+                            <span class="text nav-text">Records</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+
+                <li class="mode">
+                    <div class="sun-moon">
+                        <i class='bx bx-moon icon moon'></i>
+                        <i class='bx bx-sun icon sun'></i>
+                    </div>
+                    <span class="mode-text text">Dark mode</span>
+
+                    <div class="toggle-switch">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+
+            </div>
+        </div>
+
+    </nav>
+
+    <section class="home">
+        <div class="text">Dashboard</div>
+    </section>
+
+    <div class="container">
+        <form id="form">
+            <h3>Request Form</h3>
+            <div class="field">
+                <div class="row">
+                    <labe>Borrower Name</label>
+                        <input type="text" id="name" name="name" placeholder="Enter Borrower Name" required>
+                </div>
+                <div class="row">
+                    <labe>College Department</label>
+                        <select name="program" id="program" required>
+                            <option value="" hidden>Select Department</option>
+                            <option value="Computer Studies Program">CSP</option>
+                            <option value="Accounting Program">AP</option>
+                            <option value="Bussiness Administration Program">BAP</option>
+                            <option value="Arts and Sciences Program">ASP</option>
+                            <option value="Teachers Education Program">TEP</option>
+                            <option value="Nursing Program">NP</option>
+                            <option value="Criminal Justice Education Program">CJEP</option>
+                        </select>
+                </div>
+            </div>
+            <div class="field">
+                <div class="row">
+                    <labe>Date</label>
+                        <input type="date" id="date" name="date" required>
+                </div>
+                <div class="row">
+                    <labe>Time Borrow</label>
+                        <input type="time" id="time_borrow" name="time_borrow" required>
+                </div>
+            </div>
+            <div class="field">
+                <div class="row">
+                    <labe>Return Time</label>
+                        <input type="time" id="return_time" name="return_time" required>
+                </div>
+                <div class="row">
+                    <labe>Item</label>
+                        <select name="item" id="item" required>
+                            <option value="" hidden>Select Item</option>
+                            <option value="White Board">Whiteboard</option>
+                            <option value="Table">Table</option>
+                            <option value="Projector">Projector</option>
+                            <option value="Other">Other</option>
+                        </select>
+                </div>
+            </div>
+            <div class="field">
+                <div class="row">
+                    <labe>If Others</label>
+                        <input type="text" id="others" name="others" placeholder="Enter Other Item Name">
+                </div>
+                <div class="row">
+                    <labe>Purpose</label>
+                        <input type="text" id="purpose" name="purpose" placeholder="Enter Purpose" required>
+                </div>
+            </div>
+            <div class="field btn">
+                <button type="submit" id="register">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script>
+        $(document).ready(function() {
+
+            $('input[type="text"]').val('');
+            $('input[type="number"]').val('');
+
+            $("#register").click(function(event) {
+                event.preventDefault();
+
+                // serialize form data
+                var formData = $("#form").serializeArray();
+
+                console.log(JSON.stringify(formData));
+
+                // send AJAX request
+                $.ajax({
+                    url: 'http://172.17.100.12:8081/javerle/cgi-bin/projmid.o',
+                    type: 'POST',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === "success") {
+                            console.log(response.message)
+                            console.log(response.data)
+
+                            $('input[type="text"]').val('');
+                            $('input[type="number"]').val('');
+
+                        } else if (response.status === "error") {
+                            console.log(response.message)
+                            console.log(response.message_additional)
+
+                            var toastHTML = '<i class="material-icons">error_outline</i>&nbsp;<span>' + response.message + '</span>';
+                            M.toast({
+                                html: toastHTML,
+                                classes: 'rounded'
+                            });
+
+
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
