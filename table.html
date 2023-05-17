@@ -1,0 +1,204 @@
+<!-- Coding by CodingLab | www.codinglabweb.com -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="style.css">
+
+    <!----===== Boxicons CSS ===== -->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    <title>Dashboard Sidebar Menu</title>
+</head>
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="logo.png" alt="">
+                </span>
+
+                <div class="text logo-text">
+                    <span class="name">Request Form</span>
+                </div>
+            </div>
+
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+
+                <li class="search-box">
+                    <i class='bx bx-search icon'></i>
+                    <input type="text" placeholder="Search...">
+                </li>
+
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="record.html">
+                            <i class='bx bx-home-alt icon'></i>
+                            <span class="text nav-text">Form</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class='bx bx-wallet icon'></i>
+                            <span class="text nav-text">Records</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+
+                <li class="mode">
+                    <div class="sun-moon">
+                        <i class='bx bx-moon icon moon'></i>
+                        <i class='bx bx-sun icon sun'></i>
+                    </div>
+                    <span class="mode-text text">Dark mode</span>
+
+                    <div class="toggle-switch">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+
+            </div>
+        </div>
+
+    </nav>
+
+    <section class="home">
+        <div class="text">Dashboard</div>
+    </section>
+
+    <div class="container">
+        <section class="attendance">
+            <div class="attendance-list">
+                <div class="attendance-top">
+                    <div class="attendance-data">
+                        <h1>Records</h1>
+                    </div>
+                    <div class="attendance-data search">
+                        <input type="text" id="id" name="id">
+                        <button type="submit" id="search">Search</button>
+                        <button type="submit" id="delete">Delete</button>
+                    </div>
+                </div>
+                <div class="table">
+                    <div class="thead">
+                        <div class="tr">
+                            <div class="th">ID</div>
+                            <div class="th">Borrower</div>
+                            <div class="th">Department</div>
+                            <div class="th">Date</div>
+                            <div class="th">Time Borrow</div>
+                            <div class="th">Return Time</div>
+                            <div class="th">Item</div>
+                            <div class="th">If Others</div>
+                            <div class="th">Purpose</div>
+                        </div>
+                    </div>
+
+                    <div class="tbody" id="tbody">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+
+    <script src="script.js"></script>
+    <script id="listitems" type="text/x-handlebars-template">
+        <div class="row" id="logslist">
+            {{#each data}}
+                <div class="tr">
+                    <div class="td">{{id}}</div>
+                    <div class="td">{{name}}</div>
+                    <div class="td">{{program}}</div>
+                    <div class="td">{{date}}</div>
+                    <div class="td">{{time_borrow}}</div>
+                    <div class="td">{{return_time}}</div>
+                    <div class="td">{{item}}</div>
+                    <div class="td">{{others}}</div>
+                    <div class="td">{{purpose}}</div>
+                </div>
+            {{/each}}
+       </div>
+    </script>
+    <script>
+        function get(choice) {
+            var formData = $("#id").serializeArray();
+
+            console.log(JSON.stringify(formData));
+            const finalUrl = choice ? "http://172.17.100.12:8081/javerle/cgi-bin/getproj.o" : "http://172.17.100.12:8081/javerle/cgi-bin/delete.o";
+            // send AJAX request
+            $.ajax({
+                url: finalUrl,
+                type: 'POST',
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === "success") {
+                        //console.log(response.message)
+                        // console.log(response)
+                        console.log(response.data)
+
+                        if (choice) {
+                            var template = Handlebars.compile($("#listitems").html());
+                            var html = template(response);
+
+                            $("#tbody").html(html);
+                        } else {
+                            document.querySelector('#id').value = '';
+                            get(true);
+                        }
+
+
+                    } else if (response.status === "error") {
+                        console.log(response.message)
+                        console.log(response.message_additional)
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+
+        get(true);
+
+        $(document).ready(function() {
+
+            $('input[type="text"]').val('');
+            $('input[type="number"]').val('');
+
+            $('#search').click(function(event) {
+                event.preventDefault();
+                M.Toast.dismissAll();
+                get(true);
+            });
+            $('#delete').click(function(event) {
+                event.preventDefault();
+                M.Toast.dismissAll();
+                get(false);
+            });
+        });
+
+    </script>
+</body>
+
+</html>
